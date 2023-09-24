@@ -386,7 +386,30 @@ title: APIs.json Builder
 
 			function copyToClipboard() {
 
-				navigator.clipboard.writeText(document.getElementById('json-store-data').value);
+				//navigator.clipboard.writeText(document.getElementById('json-store-data').value);
+
+				if (navigator.clipboard && window.isSecureContext) {
+					navigator.clipboard.writeText(document.getElementById('json-store-data').value);
+				} else {
+				const textArea = document.createElement("textarea");				
+				textArea.value = document.getElementById('json-store-data').value;
+
+				// Move textarea out of the viewport so it's not visible
+				textArea.style.position = "absolute";
+				textArea.style.left = "-999999px";
+
+				document.body.prepend(textArea);
+				textArea.select();
+
+				try {
+					document.execCommand('copy');
+				} catch (error) {
+					console.error(error);
+				} finally {
+					textArea.remove();
+				}
+			}
+
 				document.getElementById('alert').innerHTML = 'Your APIs.json has been copied to your clipboard, you can now paste and publish anywhere you like.';
 				document.getElementById('alert').style.display = '';
 
