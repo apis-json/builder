@@ -429,13 +429,7 @@
 
 			function copyToClipboard() {
 
-				var copyText = document.getElementById('json-store-data');
-
-				copyText.select();
-				copyText.setSelectionRange(0, 99999);
-				
-				navigator.clipboard.writeText(copyText.value);
-
+				navigator.clipboard.writeText(document.getElementById('json-store-data').value);
 				document.getElementById('alert').innerHTML = 'Your APIs.json has been copied to your clipboard, you can now paste and publish anywhere you like.';
 				document.getElementById('alert').style.display = '';
 
