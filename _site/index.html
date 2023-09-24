@@ -53,7 +53,7 @@
 		<header>
 			<h2 onclick="show('json-store');">APIs.json Builder</h2>
 		</header>
-		<p style="margin-left; 15px; margin-right: 15px;">This is an APIs.json builder, allowing you to assemble an APIs.json for your API, and then save and copy to clipboard. </p>
+		<p style="margin-left; 15px; margin-right: 15px;">This is an APIs.json builder, allowing you to assemble [an APIs.json index](https://apisjson.org/) for your API operations, and then save and copy to clipboard. </p>
 		<!-- JSON Store -->
 		<div id="json-store" style="display: none;">
 			<p><strong>JSON Store</strong></p>
@@ -425,7 +425,7 @@
 
 			function copyToClipboard() {
 
-				var copyText = document.getElementById('json-store-data');
+				var copyText = document.getElementById('json-store-data').value;
 
 				copyText.select();
 				copyText.setSelectionRange(0, 99999);
@@ -464,6 +464,9 @@
   <ul>
     <li><a href="/">Home</a></li>
   </ul>
+  <ul>
+    <li><a href="https://apisjson.org/">APIs.json</a></li>
+  </ul>  
 </nav>
 
 
