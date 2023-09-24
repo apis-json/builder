@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html xmlns="https://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+  <html>
+  <title>APIs.json Builder</title>
+  <meta charset="utf-8" />
+	<meta name="keywords" content="API, API Lifecycle, API Search, Application Programming Interface">
+	<meta name="author" content="Kin Lane">
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+
+	<link rel="stylesheet" href="https://kinlane-productions2.s3.amazonaws.com/network/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://kinlane-productions2.s3.amazonaws.com/network/css/main.css?1=1" />
+
+	<link rel="shortcut icon" type="image/x-icon" href="https://apievangelist.com/favicon.ico">
+	<link rel="icon" type="image/x-icon" href="https://apievangelist.com/favicon.ico">
+	<link rel="icon" href="https://apievangelist.com/favicon.ico">
+
+	<script src="https://kinlane-productions2.s3.amazonaws.com/network/javascript/jquery-latest.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="https://kinlane-productions2.s3.amazonaws.com/network/javascript/utility.js" type="text/javascript" charset="utf-8"></script>
+	<script src="https://kinlane-productions2.s3.amazonaws.com/network/javascript/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+
+  <!-- Cookies.js - http://github.com/ScottHamper/Cookies -->
+  <script src="https://kinlane-productions2.s3.amazonaws.com/js/cookies.js"></script>
+
+	<script src="https://kinlane-productions2.s3.amazonaws.com/network/javascript/jquery.awesomeCloud-0.2.min.js"></script>
+
+	<style type="text/css">
+		.gist {width:100% !important;}
+		.gist-file
+		.gist-data {max-height: 500px;max-width: 100%;}
+	</style>
+
+</head>
+
+  <body>
+
+			<div id="wrapper">
+					<div id="main">
+						<div class="inner">
+
+              <header id="header">
+  <a href="http://localhost:4000" class="logo"><img src="https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg" width="50%" /></a>
+  <ul class="icons">
+    <li><a href="https://github.com/apis-json" class="icon fa-github"><span class="label">Github</span></a></li>
+  </ul>
+</header>
+
+              <!--<div class="alert alert-danger"><center>This website is currently dormant!</center></div>-->
+
+    	        <!-- Main -->
+<section id="banner">
+	<div class="content">
+
+		<header>
+			<h2 onclick="show('json-store');">APIs.json Builder</h2>
+		</header>
+		<p style="margin-left; 15px; margin-right: 15px;">This is an APIs.json builder, allowing you to assemble an APIs.json for your API, and then save and copy to clipboard. </p>
+		<!-- JSON Store -->
+		<div id="json-store" style="display: none;">
+			<p><strong>JSON Store</strong></p>
+			<textarea  id="json-store-data" style="width: 100%; height: 150px;"></textarea>
+		</div>
+		<!-- JSON Store -->
+
+		<form>
+			<div id="form"></div>
+		</form>
+		<div class="alert alert-success" role="alert" id="alert" style="display: none; text-align: center;">
+			A simple success alert—check it out!
+		</div>
+		<center>
+		<button type="button" onclick="saveChanges(); return false;">Save Changes</button>
+		<button type="button" onclick="reset(); return false;">Reset</button>
+		<button type="button" onclick="copyToClipboard(); return false;">Copy to Clipboard</button>
+		</center>
+
+		<script>
+
+			var date = new Date();
+			var yyyy = date.getFullYear().toString();                                    
+			var mm = (date.getMonth()+1).toString();      
+			var dd  = date.getDate().toString();    
+
+			function show(id){
+				if(document.getElementById(id).style.display == 'none'){
+					document.getElementById(id).style.display = '';
+				}
+				else{
+					document.getElementById(id).style.display = 'none';
+				}
+			}
+
+			function saveRoot(id){
+				field = id.replace('api_json_','');
+				console.log(field);
+				var json_data = JSON.parse(document.getElementById('json-store-data').value);
+				json_data[field] = document.getElementById(id).value;
+				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
+				console.log('done');
+			}
+
+			function saveAPI(id,api){
+				field = id.replace('_' + api,'');
+				field = field.replace('_' + api,'');
+				console.log(field);
+				var json_data = JSON.parse(document.getElementById('json-store-data').value);
+				json_data.apis[api][field] = document.getElementById(id + '_' + api).value;
+				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
+				console.log('done');
+			}	
+			
+			function saveProperty(id,api,property){
+				field = id.replace('api_property_','');
+				field = field.replace('_' + api,'');
+				field = field.replace('_' + property,'');
+				console.log(field);
+				var json_data = JSON.parse(document.getElementById('json-store-data').value);
+				json_data.apis[api].properties[property][field] = document.getElementById(id + '_' + api + '_' + property).value;
+				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
+				console.log('done');
+			}	
+			
+			function saveContact(id,api,contact){
+				field = id.replace('api_contact_','');
+				field = field.replace('_' + api,'');
+				field = field.replace('_' + contact,'');
+				console.log(field);
+				var json_data = JSON.parse(document.getElementById('json-store-data').value);
+				json_data.apis[api].contact[contact][field] = document.getElementById(id + '_' + api + '_' + contact).value;
+				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
+				console.log('done');
+			}	
+			
+			function saveMaintainer(id,maintainer){
+				field = id.replace('api_maintainer_','');
+				field = field.replace('_' + maintainer,'');
+				console.log(field);
+				var json_data = JSON.parse(document.getElementById('json-store-data').value);
+				json_data.maintainers[maintainer][field] = document.getElementById(id + '_' + maintainer).value;
+				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
+				console.log('done');
+			}		
+
+			function addProperty(type,url){
+				var property = {};
+
+				property.type = type;
+				property.url = url;
+
+				return property;
+			}
+
+			function addMaintainer(){
+				var maintainer = {};
+				maintainer.FN = "APIs.json";
+				maintainer.email = "info@apisjson.org";				
+				return maintainer;
+			}
+			function addContact(){
+
+				var contact = {};
+				contact.FN = "APIs.json";
+				contact.email = "info@apisjson.org";	
+				
+				return contact;
+			}
+			function addAPI(){
+
+				var api = {};
+				api.name = "API Name";
+				api.description = "This is the description of your API.";					
+				api.image = "https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg";
+				api.humanURL = "https://developer.example.com";
+				api.baseURL = "https://api.example.com";
+				api.tags = ['Resource','Capability'];
+				api.properties = [];					
+				api.contact = [];	
+
+				var property = addProperty('X-signup','https://example.com/signup');
+				api.properties.push(property);	
+				
+				var property = addProperty('X-documentation','https://example.com/documentation');
+				api.properties.push(property);	
+
+				var property = addProperty('X-openapi','http://example.com/openapi.json');
+				api.properties.push(property);								
+
+				var contact = addContact();
+				api.contact.push(contact);
+				
+				return api;
+			}
+			
+			function addAPIsJSON(){
+
+				var apis_json = {};
+				apis_json.name = "Starter APIs.json";
+				apis_json.description = "This is a starter APIs.json that you can use to learn the specification and make your own.";
+				apis_json.image = "https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg";
+				apis_json.url = "https://example.com/apis.json";
+				apis_json.created = yyyy + '/' + mm + '/' + dd;
+				apis_json.modified = yyyy + '/' + mm + '/' + dd;
+				apis_json.specificationVersion = "0.14";
+				apis_json.tags = ['APIs','Discovery'];
+				apis_json.apis = [];
+				apis_json.maintainers = [];
+
+				var api = addAPI();
+				apis_json.apis.push(api);
+
+				var maintainer = addMaintainer();
+				apis_json.maintainers.push(maintainer);				
+				
+				return apis_json;
+			}
+
+			function addNewAPI(){
+
+				console.log("in");
+
+				var json_data = JSON.parse(document.getElementById('json-store-data').value);
+
+				var api = addAPI();
+				json_data.apis.push(api);
+
+				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
+
+				display();
+
+				console.log('done');				
+
+			}
+
+			function addNewProperty(id){
+
+				console.log("in");
+
+				var json_data = JSON.parse(document.getElementById('json-store-data').value);
+
+				var property = addProperty('x-type','https://example.com');
+				json_data.apis[id].properties.push(property);
+
+				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
+
+				display();
+
+				console.log('done');				
+
+			}		
+				
+			function addNewContact(id){
+
+				console.log("in");
+
+				var json_data = JSON.parse(document.getElementById('json-store-data').value);
+
+				var contact = addContact();
+				json_data.apis[id].contact.push(contact);
+
+				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
+
+				display();
+
+				console.log('done');				
+
+			}					
+
+			function display(){
+
+				// Check Cookie
+				var apis_json = Cookies.get('apis_json');
+
+				// Check Store
+				var json_data = document.getElementById('json-store-data').value;
+				
+				if(!apis_json){	
+
+					if(json_data == ''){					
+						apis_json = addAPIsJSON();				
+					}	
+					else{
+						apis_json = JSON.parse(json_data);
+					}		
+				}
+				else{
+					apis_json = JSON.parse(apis_json);
+				}
+
+				//console.log(apis_json);
+				document.getElementById('json-store-data').value = JSON.stringify(apis_json, null, 2);
+
+				// RESET
+				document.getElementById('form').innerHTML = '';
+
+				var form = '<h3>Information</h3>';
+				form += '<div class="mb-3">';
+				form += '<label for="api_json_name" class="form-label">Name</label>';
+				form += '<input type="text" class="form-control" id="api_json_name" value="' + apis_json.name + '" onchange="' + "saveRoot('api_json_name'); return false;" + '">';
+				form += '</div>';
+				
+				form += '<div class="mb-3">';
+				form += '<label for="api_json_description" class="form-label">Description</label>';
+				form += '<textarea style="width: 100%; height: 100px;" class="form-control" id="api_json_description" onchange="' + "saveRoot('api_json_description'); return false;" + '">' + apis_json.description + '</textarea>';
+				form += '</div>';
+				
+				form += '<div class="mb-3">';
+				form += '<label for="api_json_image" class="form-label">Image</label>';
+				form += '<input type="text" class="form-control" id="api_json_image" value="' + apis_json.image + '" onchange="' + "saveRoot('api_json_image'); return false;" + '">';
+				form += '</div>';
+				
+				form += '<div class="mb-3">';
+				form += '<label for="api_json_image" class="form-label">URL</label>';
+				form += '<input type="text" class="form-control" id="api_json_url" value="' + apis_json.url + '" onchange="' + "saveRoot('api_json_url'); return false;" + '">';
+				form += '</div>';
+
+				form += '<h3>APIs (<a href="#" onclick="addNewAPI(); return false;">Add</a>)</h3>';			
+
+				for (let i = 0; i < apis_json.apis.length; i++) {
+
+					form += '<hr>';
+					form += '<div class="mb-3">';
+					form += '<label for="api_name" class="form-label">Name</label>';
+					form += '<input type="text" class="form-control" id="api_name_' + i + '" value="' + apis_json.apis[i].name + '" onchange="' + "saveAPI('api_name','" + i + "'); return false;" + '">';
+					form += '</div>';
+					
+					form += '<div class="mb-3">';
+					form += '<label for="api_description" class="form-label">Description</label>';
+					form += '<textarea style="width: 100%; height: 100px;" class="form-control" id="api_description_' + i + '" onchange="' + "saveAPI('api_description','" + i + "'); return false;" + '">' + apis_json.apis[i].description + '</textarea>';
+					form += '</div>';
+					
+					form += '<div class="mb-3">';
+					form += '<label for="api_image" class="form-label">Image</label>';
+					form += '<input type="text" class="form-control" id="api_image_' + i + '" value="' + apis_json.apis[i].image + '" onchange="' + "saveAPI('api_image','" + i + "'); return false;" + '">';
+					form += '</div>';
+					
+					form += '<div class="mb-3">';
+					form += '<label for="api_humanURL" class="form-label">Human URL</label>';
+					form += '<input type="text" class="form-control" id="api_humanURL_' + i + '" value="' + apis_json.apis[i].humanURL + '" onchange="' + "saveAPI('api_humanURL','" + i + "'); return false;" + '">';
+					form += '</div>';
+					
+					form += '<div class="mb-3">';
+					form += '<label for="api_baseURL" class="form-label">Base URL</label>';
+					form += '<input type="text" class="form-control" id="api_baseURL_' + i + '" value="' + apis_json.apis[i].baseURL + '" onchange="' + "saveAPI('api_baseURL','" + i + "'); return false;" + '">';
+					form += '</div>';					
+
+					form += '<hr>';	
+
+					form += '<h4>Properties (<a href="#" onclick="addNewProperty(' + i + '); return false;">Add</a>)</h4>';	
+
+					for (let j = 0; j < apis_json.apis[i].properties.length; j++) {
+
+						form += '<div class="mb-3">';
+						form += '<label for="api_property_image" class="form-label">Type</label>';
+						form += '<input type="text" class="form-control" id="api_property_image_' + i + '_' + j + '" value="' + apis_json.apis[i].properties[j].type + '" onchange="' + "saveProperty('api_property_image','" + i + "','" + j + "'); return false;" + '">';
+						form += '</div>';
+						
+						form += '<div class="mb-3">';
+						form += '<label for="api_property_humanURL" class="form-label">URL</label>';
+						form += '<input type="text" class="form-control" id="api_property_humanURL_' + i + '_' + j + '" value="' + apis_json.apis[i].properties[j].url + '" onchange="' + "saveProperty('api_property_humanURL','" + i + "','" + j + "'); return false;" + '">';
+						form += '</div>';
+
+					}
+
+					form += '<h4>Contacts (<a href="#" onclick="addNewContact(' + i + '); return false;">Add</a>)</h4>';	
+
+					if(apis_json.apis[i].contact){
+						for (let j = 0; j < apis_json.apis[i].contact.length; j++) {
+
+							form += '<div class="mb-3">';
+							form += '<label for="api_contact_fn" class="form-label">FN</label>';
+							form += '<input type="text" class="form-control" id="api_contact_fn_' + i + '_' + j + '" value="' + apis_json.apis[i].contact[j].FN + '" onchange="' + "saveContact('api_contact_fn','" + i + "','" + j + "'); return false;" + '">';
+							form += '</div>';
+							
+							form += '<div class="mb-3">';
+							form += '<label for="api_contact_email" class="form-label">Email</label>';
+							form += '<input type="text" class="form-control" id="api_contact_email_' + i + '_' + j + '" value="' + apis_json.apis[i].contact[j].email + '" onchange="' + "saveContact('api_contact_email','" + i + "','" + j + "'); return false;" + '">';
+							form += '</div>';
+
+						}	
+					}
+									
+
+				}
+				
+				if(apis_json.maintainers){
+					form += '<h4>Maintainers</h4>';	
+					for (let j = 0; j < apis_json.maintainers.length; j++) {
+
+						form += '<hr>';
+
+						form += '<div class="mb-3">';
+						form += '<label for="api_maintainer_fn" class="form-label">FN</label>';
+						form += '<input type="text" class="form-control" id="api_maintainer_fn_' + j + '" value="' + apis_json.maintainers[j].FN + '" onchange="' + "saveMaintainer('api_maintainer_fn','" + j + "'); return false;" + '">';
+						form += '</div>';
+						
+						form += '<div class="mb-3">';
+						form += '<label for="api_maintainer_email" class="form-label">Email</label>';
+						form += '<input type="text" class="form-control" id="api_maintainer_email_' + j + '" value="' + apis_json.maintainers[j].email + '" onchange="' + "saveMaintainer('api_maintainer_email','" + j + "'); return false;" + '">';
+						form += '</div>';
+
+					}	
+				}				
+
+				document.getElementById('form').innerHTML = form;
+
+			}
+
+			function saveChanges(){
+
+				var json_data = document.getElementById('json-store-data').value;
+
+				Cookies.set('apis_json', json_data, { expires: Infinity });
+
+				document.getElementById('alert').innerHTML = 'Your APIs.json has been saved to a cookie, and will remain there for editing until you clear your cookies.';
+				document.getElementById('alert').style.display = '';			
+
+				}	
+				
+			function reset() {
+
+				document.getElementById('json-store-data').value = "";
+				Cookies.expire('apis_json');
+				display();
+
+				}
+
+			function copyToClipboard() {
+
+				var copyText = document.getElementById('json-store-data');
+
+				copyText.select();
+				copyText.setSelectionRange(0, 99999);
+				
+				navigator.clipboard.writeText(copyText.value);
+
+				document.getElementById('alert').innerHTML = 'Your APIs.json has been copied to your clipboard, you can now paste and publish anywhere you like.';
+				document.getElementById('alert').style.display = '';
+
+				}				
+		</script>
+		<script>
+			display();
+		</script>
+	</div>
+</section>
+
+              <footer>
+  <p align="center">
+    do you prefer yaml?
+    <a href="http://apisyaml.org">apis.yaml</a>
+  </p>
+</footer>
+
+
+            </div>
+          </div>
+
+          <div id="sidebar">
+          <div class="inner">
+
+            <nav id="menu">
+  <header class="major">
+    <h2>Navigation</h2>
+  </header>
+  <ul>
+    <li><a href="/">Home</a></li>
+  </ul>
+</nav>
+
+
+            <section>
+  <header class="major">
+    <h2>Supported Specifications</h2>
+  </header>
+  <div class="mini-posts">
+    
+    
+        <article style="padding: 2px; margin: 0px 0px 0px 30px;"><a href="https://www.openapis.org/" class="image"><img src="https://kinlane-productions2.s3.amazonaws.com/specifications/openapi.png" alt="" style="width: 200px; border: 1px solid #000;" /></a></article>
+    
+        <article style="padding: 2px; margin: 0px 0px 0px 30px;"><a href="https://www.asyncapi.com/" class="image"><img src="https://kinlane-productions2.s3.amazonaws.com/specifications/asyncapi-horiozontal.png" alt="" style="width: 200px; border: 1px solid #000;" /></a></article>
+    
+        <article style="padding: 2px; margin: 0px 0px 0px 30px;"><a href="https://json-schema.org/" class="image"><img src="https://kinlane-productions2.s3.amazonaws.com/specifications/json-schema.png" alt="" style="width: 200px; border: 1px solid #000;" /></a></article>
+    
+  </div>
+</section>
+
+
+          </div>
+          </div>
+
+      </div>
+
+<script src="https://kinlane-productions2.s3.amazonaws.com/network/javascript/skel.min.js"></script>
+<script src="https://kinlane-productions2.s3.amazonaws.com/network/javascript/util.js"></script>
+<script src="https://kinlane-productions2.s3.amazonaws.com/network/javascript/main.js"></script>
+
+
+</body>
+</html>
