@@ -59,7 +59,7 @@
 		<!-- JSON Store -->
 		<div id="json-store" style="display: none;">
 			<p><strong>JSON Store</strong></p>
-			<textarea  id="json-store-data" style="width: 100%; height: 150px;"></textarea>
+			<textarea  id="json-store-data" style="width: 100%; height: 150px;" onchange="saveChanges(); return false;"></textarea>
 		</div>
 		<!-- JSON Store -->
 
@@ -103,7 +103,7 @@
 			}
 
 			function saveAPI(id,api){
-				field = id.replace('_' + api,'');
+				field = id.replace('api_','');
 				field = field.replace('_' + api,'');
 				console.log(field);
 				var json_data = JSON.parse(document.getElementById('json-store-data').value);
@@ -156,6 +156,7 @@
 			function addMaintainer(){
 				var maintainer = {};
 				maintainer.FN = "APIs.json";
+				maintainer.url = "https://apisjson.org";	
 				maintainer.email = "info@apisjson.org";				
 				return maintainer;
 			}
@@ -163,6 +164,7 @@
 
 				var contact = {};
 				contact.FN = "APIs.json";
+				contact.url = "https://apisjson.org";	
 				contact.email = "info@apisjson.org";	
 				
 				return contact;
@@ -225,13 +227,8 @@
 
 				var api = addAPI();
 				json_data.apis.push(api);
-
 				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
-
 				display();
-
-				console.log('done');				
-
 			}
 
 			function addNewProperty(id){
@@ -270,23 +267,29 @@
 
 			function display(){
 
+				//Cookies.expire('apis_json');
 				// Check Cookie
-				var apis_json = Cookies.get('apis_json');
+				//var apis_json = Cookies.get('apis_json');
 
 				// Check Store
 				var json_data = document.getElementById('json-store-data').value;
 				
-				if(!apis_json){	
-
+				if(json_data){	
+					// Prioritize What is In Textarea When Displaying
 					if(json_data == ''){					
-						apis_json = addAPIsJSON();				
+						apis_json = addAPIsJSON();	
 					}	
 					else{
 						apis_json = JSON.parse(json_data);
 					}		
 				}
 				else{
-					apis_json = JSON.parse(apis_json);
+					if(Cookies.get('apis_json')){
+						apis_json = JSON.parse(Cookies.get('apis_json'));
+					}
+					else{
+						apis_json = addAPIsJSON();
+					}
 				}
 
 				//console.log(apis_json);
@@ -353,13 +356,13 @@
 					for (let j = 0; j < apis_json.apis[i].properties.length; j++) {
 
 						form += '<div class="mb-3">';
-						form += '<label for="api_property_image" class="form-label">Type</label>';
-						form += '<input type="text" class="form-control" id="api_property_image_' + i + '_' + j + '" value="' + apis_json.apis[i].properties[j].type + '" onchange="' + "saveProperty('api_property_image','" + i + "','" + j + "'); return false;" + '">';
+						form += '<label for="api_property_type" class="form-label">Type</label>';
+						form += '<input type="text" class="form-control" id="api_property_type_' + i + '_' + j + '" value="' + apis_json.apis[i].properties[j].type + '" onchange="' + "saveProperty('api_property_type','" + i + "','" + j + "'); return false;" + '">';
 						form += '</div>';
 						
 						form += '<div class="mb-3">';
-						form += '<label for="api_property_humanURL" class="form-label">URL</label>';
-						form += '<input type="text" class="form-control" id="api_property_humanURL_' + i + '_' + j + '" value="' + apis_json.apis[i].properties[j].url + '" onchange="' + "saveProperty('api_property_humanURL','" + i + "','" + j + "'); return false;" + '">';
+						form += '<label for="api_property_url" class="form-label">URL</label>';
+						form += '<input type="text" class="form-control" id="api_property_url_' + i + '_' + j + '" value="' + apis_json.apis[i].properties[j].url + '" onchange="' + "saveProperty('api_property_url','" + i + "','" + j + "'); return false;" + '">';
 						form += '</div>';
 
 					}
@@ -370,14 +373,19 @@
 						for (let j = 0; j < apis_json.apis[i].contact.length; j++) {
 
 							form += '<div class="mb-3">';
-							form += '<label for="api_contact_fn" class="form-label">FN</label>';
-							form += '<input type="text" class="form-control" id="api_contact_fn_' + i + '_' + j + '" value="' + apis_json.apis[i].contact[j].FN + '" onchange="' + "saveContact('api_contact_fn','" + i + "','" + j + "'); return false;" + '">';
+							form += '<label for="api_contact_FN" class="form-label">FN</label>';
+							form += '<input type="text" class="form-control" id="api_contact_FN_' + i + '_' + j + '" value="' + apis_json.apis[i].contact[j].FN + '" onchange="' + "saveContact('api_contact_FN','" + i + "','" + j + "'); return false;" + '">';
 							form += '</div>';
 							
 							form += '<div class="mb-3">';
 							form += '<label for="api_contact_email" class="form-label">Email</label>';
 							form += '<input type="text" class="form-control" id="api_contact_email_' + i + '_' + j + '" value="' + apis_json.apis[i].contact[j].email + '" onchange="' + "saveContact('api_contact_email','" + i + "','" + j + "'); return false;" + '">';
 							form += '</div>';
+
+							form += '<div class="mb-3">';
+							form += '<label for="api_contact_url" class="form-label">URL</label>';
+							form += '<input type="text" class="form-control" id="api_contact_url_' + i + '_' + j + '" value="' + apis_json.apis[i].contact[j].url + '" onchange="' + "saveContact('api_contact_url','" + i + "','" + j + "'); return false;" + '">';
+							form += '</div>';							
 
 						}	
 					}
@@ -410,9 +418,11 @@
 
 			function saveChanges(){
 
-				var json_data = document.getElementById('json-store-data').value;
+				var json_data = JSON.stringify(JSON.parse(document.getElementById('json-store-data').value));
+				
+				console.log("saving: " + json_data);
 
-				Cookies.set('apis_json', json_data, { expires: Infinity });
+				var set = Cookies.set('apis_json', json_data);
 
 				document.getElementById('alert').innerHTML = 'Your APIs.json has been saved to a cookie, and will remain there for editing until you clear your cookies.';
 				document.getElementById('alert').style.display = '';			
