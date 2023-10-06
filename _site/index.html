@@ -54,7 +54,7 @@
 			<h2 onclick="show('json-store');">APIs.json Builder</h2>
 		</header>
 		
-		<p style="margin-left; 15px; margin-right: 15px;">This is an APIs.json builder, allowing you to assemble <a href="https://apisjson.org/">an APIs.json index</a> for your API operations, and then save and copy to clipboard so you can publish somewhere of your choice. </p>
+		<p style="margin-left; 15px; margin-right: 15px;">This is an APIs.json builder, allowing you to assemble <a href="https://apisjson.org/">an APIs.json (0.16) index</a> for your API operations, and then save and copy to clipboard so you can publish somewhere of your choice. </p>
 		
 		<!-- JSON Store -->
 		<div id="json-store" style="display: none;">
@@ -142,7 +142,17 @@
 				json_data.maintainers[maintainer][field] = document.getElementById(id + '_' + maintainer).value;
 				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
 				console.log('done');
-			}		
+			}	
+			
+			function saveCommon(id,common){
+				field = id.replace('api_common_','');
+				field = field.replace('_' + common,'');
+				console.log(field);
+				var json_data = JSON.parse(document.getElementById('json-store-data').value);
+				json_data.common[common][field] = document.getElementById(id + '_' + common).value;
+				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
+				console.log('done');
+			}				
 
 			function addProperty(type,url){
 				var property = {};
@@ -153,22 +163,38 @@
 				return property;
 			}
 
-			function addMaintainer(){
-				var maintainer = {};
-				maintainer.FN = "APIs.json";
-				maintainer.url = "https://apisjson.org";	
-				maintainer.email = "info@apisjson.org";				
-				return maintainer;
-			}
-			function addContact(){
+
+			function addContact(FN,url,email){
 
 				var contact = {};
-				contact.FN = "APIs.json";
-				contact.url = "https://apisjson.org";	
-				contact.email = "info@apisjson.org";	
+				contact.FN = FN;
+				contact.url = url;
+				contact.email = email;	
 				
 				return contact;
 			}
+
+			function addCommon(type,url){
+				var property = {};
+
+				property.type = type;
+				property.url = url;
+
+				return property;
+			}			
+
+			function addMaintainer(FN,url,email){
+				var maintainer = {};
+				maintainer.FN = FN;
+				if(url != ''){
+					maintainer.url = url;	
+				}
+				if(email != ''){
+					maintainer.email = email;		
+					}
+				return maintainer;
+			}
+
 			function addAPI(){
 
 				var api = {};
@@ -181,16 +207,13 @@
 				api.properties = [];					
 				api.contact = [];	
 
-				var property = addProperty('X-signup','https://example.com/signup');
-				api.properties.push(property);	
-				
-				var property = addProperty('X-documentation','https://example.com/documentation');
+				var property = addProperty('Documentation','https://example.com/documentation');
 				api.properties.push(property);	
 
-				var property = addProperty('X-openapi','http://example.com/openapi.json');
+				var property = addProperty('OpenAPI','http://example.com/openapi.json');
 				api.properties.push(property);								
 
-				var contact = addContact();
+				var contact = addContact('Name','http://example.com','info@example.com');
 				api.contact.push(contact);
 				
 				return api;
@@ -205,17 +228,21 @@
 				apis_json.url = "https://example.com/apis.json";
 				apis_json.created = yyyy + '/' + mm + '/' + dd;
 				apis_json.modified = yyyy + '/' + mm + '/' + dd;
-				apis_json.specificationVersion = "0.14";
+				apis_json.specificationVersion = "0.16";
 				apis_json.tags = ['APIs','Discovery'];
 				apis_json.apis = [];
-				apis_json.maintainers = [];
+				apis_json.common = [];
+				apis_json.maintainers = [];				
 
 				var api = addAPI();
 				apis_json.apis.push(api);
 
-				var maintainer = addMaintainer();
-				apis_json.maintainers.push(maintainer);				
-				
+				var maintainer = addMaintainer('Name','http://example.com','info@example.com');
+				apis_json.maintainers.push(maintainer);		
+
+				var common = addCommon('Property Type','https://example.com');
+				apis_json.common.push(common);					
+
 				return apis_json;
 			}
 
@@ -247,7 +274,7 @@
 				console.log('done');				
 
 			}		
-				
+
 			function addNewContact(id){
 
 				console.log("in");
@@ -263,13 +290,39 @@
 
 				console.log('done');				
 
-			}					
+			}	
+			
+			function addNewCommon(){
+
+				var json_data = JSON.parse(document.getElementById('json-store-data').value);
+
+				var common = addCommon('Type','https://example.com');
+				json_data.common.push(common);
+
+				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
+
+				display();
+
+				console.log('done');				
+
+				}		
+				
+			function addNewMaintainer(){
+
+				var json_data = JSON.parse(document.getElementById('json-store-data').value);
+
+				var maintainer = addMaintainer('Name','http://example.com','info@example.com');
+				json_data.maintainers.push(maintainer);
+
+				document.getElementById('json-store-data').value = JSON.stringify(json_data, null, 2);
+
+				display();
+
+				console.log('done');				
+
+				}					
 
 			function display(){
-
-				//Cookies.expire('apis_json');
-				// Check Cookie
-				//var apis_json = Cookies.get('apis_json');
 
 				// Check Store
 				var json_data = document.getElementById('json-store-data').value;
@@ -299,6 +352,7 @@
 				document.getElementById('form').innerHTML = '';
 
 				var form = '<h3>Information</h3>';
+				form += '<p>This is the general metadata about the entity behind the APIs in this APIs.json index.</p>';
 				form += '<div class="mb-3">';
 				form += '<label for="api_json_name" class="form-label">Name</label>';
 				form += '<input type="text" class="form-control" id="api_json_name" value="' + apis_json.name + '" onchange="' + "saveRoot('api_json_name'); return false;" + '">';
@@ -319,7 +373,8 @@
 				form += '<input type="text" class="form-control" id="api_json_url" value="' + apis_json.url + '" onchange="' + "saveRoot('api_json_url'); return false;" + '">';
 				form += '</div>';
 
-				form += '<h3>APIs (<a href="#" onclick="addNewAPI(); return false;">Add</a>)</h3>';			
+				form += '<h3>APIs (<a href="#" onclick="addNewAPI(); return false;">Add</a>)</h3>';		
+				form += '<p>This is one or many definitions for individual API products offered by the entity behind this APIs.json index.</p>';	
 
 				for (let i = 0; i < apis_json.apis.length; i++) {
 
@@ -352,6 +407,7 @@
 					form += '<hr>';	
 
 					form += '<h4>Properties (<a href="#" onclick="addNewProperty(' + i + '); return false;">Add</a>)</h4>';	
+					form += '<p>These are various properties for this individual API being defined as part of this APIs.json index.</p>';	
 
 					for (let j = 0; j < apis_json.apis[i].properties.length; j++) {
 
@@ -368,6 +424,7 @@
 					}
 
 					form += '<h4>Contacts (<a href="#" onclick="addNewContact(' + i + '); return false;">Add</a>)</h4>';	
+					form += '<p>These are the name, url, and email for any contacts behind the individual API being included in this APIs.json index.</p>';	
 
 					if(apis_json.apis[i].contact){
 						for (let j = 0; j < apis_json.apis[i].contact.length; j++) {
@@ -388,28 +445,56 @@
 							form += '</div>';							
 
 						}	
-					}
-									
-
+					}								
 				}
 				
-				if(apis_json.maintainers){
-					form += '<h4>Maintainers</h4>';	
-					for (let j = 0; j < apis_json.maintainers.length; j++) {
+				if(!apis_json.common){
+					apis_json.common = [];
+				}				
 
-						form += '<hr>';
+				form += '<h3>Common (<a href="#" onclick="addNewCommon(); return false;">Add</a>)</h3>';	
+				form += '<p>These are the common properties shared across all of the APIs that are included in this APIs.json index.</p>';	
+				for (let j = 0; j < apis_json.common.length; j++) {
 
-						form += '<div class="mb-3">';
-						form += '<label for="api_maintainer_fn" class="form-label">FN</label>';
-						form += '<input type="text" class="form-control" id="api_maintainer_fn_' + j + '" value="' + apis_json.maintainers[j].FN + '" onchange="' + "saveMaintainer('api_maintainer_fn','" + j + "'); return false;" + '">';
-						form += '</div>';
-						
-						form += '<div class="mb-3">';
-						form += '<label for="api_maintainer_email" class="form-label">Email</label>';
-						form += '<input type="text" class="form-control" id="api_maintainer_email_' + j + '" value="' + apis_json.maintainers[j].email + '" onchange="' + "saveMaintainer('api_maintainer_email','" + j + "'); return false;" + '">';
-						form += '</div>';
+					//form += '<hr>';
 
-					}	
+					form += '<div class="mb-3">';
+					form += '<label for="api_common_type" class="form-label">Type</label>';
+					form += '<input type="text" class="form-control" id="api_common_type_' + j + '" value="' + apis_json.common[j].type + '" onchange="' + "saveCommon('api_common_type','" + j + "'); return false;" + '">';
+					form += '</div>';
+					
+					form += '<div class="mb-3">';
+					form += '<label for="api_common_url" class="form-label">URL</label>';
+					form += '<input type="text" class="form-control" id="api_common_url_' + j + '" value="' + apis_json.common[j].url + '" onchange="' + "saveCommon('api_common_url','" + j + "'); return false;" + '">';
+					form += '</div>';
+
+				}
+
+				if(!apis_json.maintainers){
+					apis_json.maintainers = [];
+				}
+
+				form += '<h3>Maintainers (<a href="#" onclick="addNewMaintainer(); return false;">Add</a>)</h3>';	
+				form += '<p>These are the names, url, and email of the maintainers of this APis.json index.</p>';	
+				for (let j = 0; j < apis_json.maintainers.length; j++) {
+
+					//form += '<hr>';
+
+					form += '<div class="mb-3">';
+					form += '<label for="api_maintainer_FN" class="form-label">FN</label>';
+					form += '<input type="text" class="form-control" id="api_maintainer_FN_' + j + '" value="' + apis_json.maintainers[j].FN + '" onchange="' + "saveMaintainer('api_maintainer_FN','" + j + "'); return false;" + '">';
+					form += '</div>';
+
+					form += '<div class="mb-3">';
+					form += '<label for="api_maintainer_url" class="form-label">URL</label>';
+					form += '<input type="text" class="form-control" id="api_maintainer_url_' + j + '" value="' + apis_json.maintainers[j].url + '" onchange="' + "saveMaintainer('api_maintainer_url','" + j + "'); return false;" + '">';
+					form += '</div>';					
+					
+					form += '<div class="mb-3">';
+					form += '<label for="api_maintainer_email" class="form-label">Email</label>';
+					form += '<input type="text" class="form-control" id="api_maintainer_email_' + j + '" value="' + apis_json.maintainers[j].email + '" onchange="' + "saveMaintainer('api_maintainer_email','" + j + "'); return false;" + '">';
+					form += '</div>';
+
 				}				
 
 				document.getElementById('form').innerHTML = form;
@@ -461,14 +546,14 @@
 				} finally {
 					textArea.remove();
 				}
-			}
 
 				document.getElementById('alert').innerHTML = 'Your APIs.json has been copied to your clipboard, you can now paste and publish anywhere you like.';
 				document.getElementById('alert').style.display = '';
 
-				}				
-		</script>
-		<script>
+				}	
+
+			}			
+
 			display();
 		</script>
 	</div>
